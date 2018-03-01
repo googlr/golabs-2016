@@ -64,6 +64,17 @@ type MapReduce struct {
 	Workers map[string]*WorkerInfo
 
 	// add any additional state here
+	//channel for work to do
+	workToDoChannel chan *DoJobArgs
+
+	// channel for work reply, 
+	// add "true" to this channel once a work is finished successfully
+	workReplyChannel chan bool
+
+	// channel of stage of all works
+	// add true when all map and reduce work is finished
+	mapReduceFinished chan bool
+  	
 }
 
 func InitMapReduce(nmap int, nreduce int,
@@ -77,7 +88,13 @@ func InitMapReduce(nmap int, nreduce int,
 	mr.registerChannel = make(chan string)
 	mr.DoneChannel = make(chan bool)
 
+	mr.Workers = make(map[string] *WorkerInfo)
+
 	// initialize any additional state here
+	mr.workToDoChannel = make(chan *DoJobArgs)
+	mr.workReplyChannel = make(chan bool)
+	mr.mapReduceFinished = make(chan bool)
+
 	return mr
 }
 
